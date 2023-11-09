@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen();
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // allows our api endpoints to access the database through Entity Framework Core
-builder.Services.AddNpgsql<CheckinItTwiceDbContext>(builder.Configuration["CheckinItTwiceDbConnectionString"]);
+builder.Services.AddNpgsql<CheckingItTwiceDbContext>(builder.Configuration["CheckinItTwiceDbConnectionString"]);
 
 // Set the JSON serializer options
 builder.Services.Configure<JsonOptions>(options =>
@@ -36,7 +36,7 @@ builder.Services.Configure<JsonOptions>(options =>
 
 var app = builder.Build();
 
-//Add for Cors 
+//Add for Cors git 
 app.UseCors();
 
 // Configure the HTTP request pipeline.
