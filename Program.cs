@@ -46,4 +46,353 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+///////////////////////////               USER ENDPOINTS:      ///////////////////////////////////
+
+//Check user:
+app.MapGet("/checkuser/{uid}", (CheckingItTwiceDbContext db, string uid) =>
+{
+    var userExist = db.Users.Where(user => user.Uid == uid).FirstOrDefault();
+    if (userExist == null)
+    {
+        return Results.BadRequest("User is not registered");
+    }
+    return Results.Ok(userExist);
+});
+
+//Create User:
+app.MapPost("/user", (CheckingItTwiceDbContext db, User userPayload) =>
+{
+    User NewUser = new User()
+    {
+        FirstName = userPayload.FirstName,
+        LastName = userPayload.LastName,
+        Uid = userPayload.Uid,
+        ImageUrl = userPayload.ImageUrl,
+    };
+
+    db.Users.Add(NewUser);
+    db.SaveChanges();
+    return Results.Created($"/user/{NewUser.Id}", NewUser);
+});
+
+//Delete User:
+app.MapDelete("/user/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    User userToDelete = db.Users.Where(User => User.Id == id).FirstOrDefault();
+    if (userToDelete == null)
+    {
+        return Results.NotFound();
+    }
+    db.Users.Remove(userToDelete);
+    db.SaveChanges();
+    return Results.Ok(db.Users);
+});
+
+//Get All Users:
+app.MapGet("/users", (CheckingItTwiceDbContext db) =>
+{
+    return db.Users.Include(u => u.ChristmasYear)
+                   .Include(u => u.ChristmasList)
+                   .ToList();
+});
+
+// Get User by Id:
+app.MapGet("/user/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    return db.Users.Where(u => u.Id == id)
+                   .Include(u => u.ChristmasYear)
+                   .Include(u => u.ChristmasList)
+                   .FirstOrDefault();
+});
+
+//Update User:
+app.MapPut("/updateUser/{id}", (CheckingItTwiceDbContext db, int id, User user) =>
+{
+    User userToUpdate = db.Users.Include(u => u.ChristmasList)
+                                .Include(u => u.ChristmasYear)
+                                .SingleOrDefault(u => u.Id == id);
+    if (userToUpdate == null)
+    {
+        return Results.NotFound("user not found");
+    }
+
+    userToUpdate.FirstName = user.FirstName;
+    userToUpdate.LastName = user.LastName;
+    userToUpdate.ImageUrl = user.ImageUrl;
+
+    db.SaveChanges();
+    return Results.Ok(userToUpdate);
+});
+
+///////////////////////////               GIFTEE ENDPOINTS:      ///////////////////////////////////
+
+//Create Giftee:
+app.MapPost("/giftee", (CheckingItTwiceDbContext db, Giftee gifteePayload) =>
+{
+    Giftee NewGiftee = new Giftee()
+    {
+        FirstName = gifteePayload.FirstName,
+        LastName = gifteePayload.LastName,
+        UserId = gifteePayload.UserId,
+    };
+
+    db.Giftees.Add(NewGiftee);
+    db.SaveChanges();
+    return Results.Created($"/giftee/{NewGiftee.Id}", NewGiftee);
+});
+
+//Update Giftee:
+app.MapPut("/updateGiftee/{id}", (CheckingItTwiceDbContext db, int id, Giftee giftee) =>
+{
+    Giftee gifteeToUpdate = db.Giftees.Include(g => g.ChristmasLists)
+                                      .Include(g => g.User)
+                                      .SingleOrDefault(g => g.Id == id);
+    if (gifteeToUpdate == null)
+    {
+        return Results.NotFound("giftee not found");
+    }
+
+    gifteeToUpdate.FirstName = giftee.FirstName;
+    gifteeToUpdate.LastName = giftee.LastName;
+
+    db.SaveChanges();
+    return Results.Ok(gifteeToUpdate);
+});
+
+// Get Giftee by Id:
+app.MapGet("/giftee/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    return db.Giftees.Where(g => g.Id == id)
+                     .Include(g => g.ChristmasLists)
+                     .Include(g => g.User)
+                     .FirstOrDefault();
+});
+
+//Delete Giftee:
+app.MapDelete("/giftee/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    Giftee gifteeToDelete = db.Giftees.Where(giftee => giftee.Id == id).FirstOrDefault();
+    if (gifteeToDelete == null)
+    {
+        return Results.NotFound();
+    }
+    db.Giftees.Remove(gifteeToDelete);
+    db.SaveChanges();
+    return Results.Ok(db.Giftees);
+});
+
+//Get All Giftees:
+app.MapGet("/giftees", (CheckingItTwiceDbContext db) =>
+{
+    return db.Giftees.Include(g => g.User)
+                     .Include(g => g.ChristmasLists)
+                     .ToList();
+});
+
+///////////////////////////               CHRISTMAS YEAR ENDPOINTS:      ///////////////////////////////////
+
+//Create Year:
+app.MapPost("/year", (CheckingItTwiceDbContext db, ChristmasYear yearPayload) =>
+{
+    ChristmasYear NewYear = new ChristmasYear()
+    {
+        ListYear = yearPayload.ListYear,
+        YearBudget = yearPayload.YearBudget,
+        UserId = yearPayload.UserId,
+    };
+
+    db.ChristmasYears.Add(NewYear);
+    db.SaveChanges();
+    return Results.Created($"/years/{NewYear.Id}", NewYear);
+});
+
+//Update Year:
+app.MapPut("/updateYear/{id}", (CheckingItTwiceDbContext db, int id, ChristmasYear year) =>
+{
+    ChristmasYear yearToUpdate = db.ChristmasYears.Include(y => y.ChristmasLists)
+                                                  .Include(y => y.User)
+                                                  .SingleOrDefault(y => y.Id == id);
+    if (yearToUpdate == null)
+    {
+        return Results.NotFound("year not found");
+    }
+
+    yearToUpdate.ListYear = year.ListYear;
+    yearToUpdate.YearBudget = year.YearBudget;
+
+    db.SaveChanges();
+    return Results.Ok(yearToUpdate);
+});
+
+// Get Year by Id:
+app.MapGet("/year/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    return db.ChristmasYears.Where(y => y.Id == id)
+                     .Include(y => y.ChristmasLists)
+                     .Include(y => y.User)
+                     .FirstOrDefault();
+});
+
+//Delete Year:
+app.MapDelete("/year/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    ChristmasYear yearToDelete = db.ChristmasYears.Where(y => y.Id == id).FirstOrDefault();
+    if (yearToDelete == null)
+    {
+        return Results.NotFound("year not found");
+    }
+    db.ChristmasYears.Remove(yearToDelete);
+    db.SaveChanges();
+    return Results.Ok(db.ChristmasYears);
+});
+
+//Get All Years:
+app.MapGet("/years", (CheckingItTwiceDbContext db) =>
+{
+    return db.ChristmasYears.Include(y => y.User)
+                     .Include(y => y.ChristmasLists)
+                     .ToList();
+});
+
+///////////////////////////               GIFT ENDPOINTS:      ///////////////////////////////////
+
+//Create Gift:
+app.MapPost("/gift", (CheckingItTwiceDbContext db, Gift giftPayload) =>
+{
+    Gift NewGift = new Gift()
+    {
+        GiftName = giftPayload.GiftName,
+        Price = giftPayload.Price,
+        ImageUrl = giftPayload.ImageUrl,
+        UserId = giftPayload.UserId,
+        OrderedFrom = giftPayload.OrderedFrom,
+    };
+
+    db.Gifts.Add(NewGift);
+    db.SaveChanges();
+    return Results.Created($"/gifts/{NewGift.Id}", NewGift);
+});
+
+//Update Gift:
+app.MapPut("/updateGift/{id}", (CheckingItTwiceDbContext db, int id, Gift gift) =>
+{
+    Gift GiftToUpdate = db.Gifts.Include(g => g.ChristmasLists)
+                                .Include(g => g.User)
+                                .SingleOrDefault(g => g.Id == id);
+    if (GiftToUpdate == null)
+    {
+        return Results.NotFound("gift not found");
+    }
+
+    GiftToUpdate.GiftName = gift.GiftName;
+    GiftToUpdate.Price = gift.Price;
+    GiftToUpdate.ImageUrl = gift.ImageUrl;
+    GiftToUpdate.OrderedFrom = gift.OrderedFrom;
+
+    db.SaveChanges();
+    return Results.Ok(GiftToUpdate);
+});
+
+// Get Gift by Id:
+app.MapGet("/gift/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    return db.Gifts.Where(g => g.Id == id)
+                     .Include(g => g.ChristmasLists)
+                     .Include(g => g.User)
+                     .FirstOrDefault();
+});
+
+//Delete Gift:
+app.MapDelete("/gift/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    Gift giftToDelete = db.Gifts.Where(g => g.Id == id).FirstOrDefault();
+    if (giftToDelete == null)
+    {
+        return Results.NotFound("gift not found");
+    }
+    db.Gifts.Remove(giftToDelete);
+    db.SaveChanges();
+    return Results.Ok(db.Gifts);
+});
+
+//Get All Gifts:
+app.MapGet("/gifts", (CheckingItTwiceDbContext db) =>
+{
+    return db.Gifts.Include(g => g.User)
+                   .Include(g => g.ChristmasLists)
+                   .ToList();
+});
+
+///////////////////////////               LIST ENDPOINTS:      ///////////////////////////////////
+
+//Create List:
+app.MapPost("/list", (CheckingItTwiceDbContext db, ChristmasList listPayload) =>
+{
+    ChristmasList NewList = new ChristmasList()
+    {
+        ListName = listPayload.ListName,
+        ChristmasYearId = listPayload.ChristmasYearId,
+        GifteeId = listPayload.GifteeId,
+        UserId = listPayload.UserId,
+    };
+
+    db.ChristmasLists.Add(NewList);
+    db.SaveChanges();
+    return Results.Created($"/lists/{NewList.Id}", NewList);
+});
+
+//Update List:
+app.MapPut("/updateList/{id}", (CheckingItTwiceDbContext db, int id, ChristmasList list) =>
+{
+    ChristmasList listToUpdate = db.ChristmasLists.Include(l => l.ChristmasYear)
+                                                  .Include(l => l.User)
+                                                  .Include(l => l.Gifts)
+                                                  .Include(l => l.Giftee)
+                                                  .SingleOrDefault(l => l.Id == id);
+    if (listToUpdate == null)
+    {
+        return Results.NotFound("list not found");
+    }
+
+    listToUpdate.ListName = list.ListName;
+    listToUpdate.ChristmasYearId = list.ChristmasYearId;
+
+    db.SaveChanges();
+    return Results.Ok(listToUpdate);
+});
+
+// Get list by Id:
+app.MapGet("/list/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    return db.ChristmasLists.Where(l => l.Id == id)
+                     .Include(l => l.ChristmasYear)
+                     .Include(l => l.Giftee)
+                     .Include(l => l.Gifts)
+                     .Include(l => l.User)
+                     .FirstOrDefault();
+});
+
+//Delete List:
+app.MapDelete("/list/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    ChristmasList listToDelete = db.ChristmasLists.Where(l => l.Id == id).FirstOrDefault();
+    if (listToDelete == null)
+    {
+        return Results.NotFound("list not found");
+    }
+    db.ChristmasLists.Remove(listToDelete);
+    db.SaveChanges();
+    return Results.Ok(db.ChristmasLists);
+});
+
+//Get All Lists:
+app.MapGet("/lists", (CheckingItTwiceDbContext db) =>
+{
+    return db.ChristmasLists.Include(l => l.ChristmasYear)
+                            .Include(l => l.Giftee)
+                            .Include(l => l.Gifts)
+                            .Include(l => l.User)
+                            .ToList();
+});
+
 app.Run();

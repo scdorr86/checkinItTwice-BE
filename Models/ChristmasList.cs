@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string ListName { get; set; }
-        public int YearId { get; set; }
+        public int ChristmasYearId { get; set; }
         public ChristmasYear ChristmasYear { get; set; }
         public int GifteeId { get; set; }
         public Giftee Giftee { get; set; }
