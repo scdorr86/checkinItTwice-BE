@@ -8,6 +8,11 @@ using System.Security.Cryptography.Xml;
 
 public class CheckingItTwiceDbContext : DbContext
 {
+    public DbSet<ChristmasList> ChristmasLists { get; set; }
+    public DbSet<ChristmasYear> ChristmasYears { get; set; }
+    public DbSet<Gift> Gifts { get; set; }
+    public DbSet<Giftee> Giftees { get; set; }
+    public DbSet<User> Users { get; set; }
 
 
 
