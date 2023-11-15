@@ -395,4 +395,51 @@ app.MapGet("/lists", (CheckingItTwiceDbContext db) =>
                             .ToList();
 });
 
+// Add Gift to List
+app.MapPost("/list/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, int listId, int giftId) =>
+{
+    var list = db.ChristmasLists.Include(l => l.Gifts)
+                         .FirstOrDefault(l => l.Id == listId);
+    if (list == null)
+    {
+        return Results.NotFound("List not found");
+    }
+
+    var giftToAdd = db.Gifts?.Find(giftId);
+
+
+    if (giftToAdd == null)
+    {
+        return Results.NotFound("gift not found");
+    }
+
+    list?.Gifts?.Add(giftToAdd);
+    db.SaveChanges();
+    return Results.Ok(list);
+});
+
+// remove item from order
+app.MapDelete("/lists/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, int listId, int giftId) =>
+{
+    var list = db.ChristmasLists
+       .Include(l => l.Gifts)
+       .FirstOrDefault(l => l.Id == giftId);
+
+    if (list == null)
+    {
+        return Results.NotFound("List not found");
+    }
+
+    var giftToRemove = db.Gifts.Find(giftId);
+
+    if (giftToRemove == null)
+    {
+        return Results.NotFound("Gift not found");
+    }
+
+    list.Gifts.Remove(giftToRemove);
+    db.SaveChanges();
+    return Results.Ok(list);
+});
+
 app.Run();
