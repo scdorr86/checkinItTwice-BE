@@ -423,7 +423,7 @@ app.MapDelete("/lists/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, in
 {
     var list = db.ChristmasLists
        .Include(l => l.Gifts)
-       .FirstOrDefault(l => l.Id == giftId);
+       .FirstOrDefault(l => l.Id == listId);
 
     if (list == null)
     {
