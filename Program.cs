@@ -168,6 +168,16 @@ app.MapGet("/giftee/{id}", (CheckingItTwiceDbContext db, int id) =>
                      .FirstOrDefault();
 });
 
+// Get user Giftees:
+app.MapGet("/userGiftees/{userid}", (CheckingItTwiceDbContext db, int userid) =>
+{
+    return db.Giftees.Where(g => g.UserId == userid)
+                     .Include(g => g.ChristmasLists.Where(l => l.UserId == userid))
+                     .ThenInclude(l => l.Gifts)
+                     .Include(g => g.User)
+                     .ToList();
+});
+
 //Delete Giftee:
 app.MapDelete("/giftee/{id}", (CheckingItTwiceDbContext db, int id) =>
 {
