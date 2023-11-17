@@ -302,6 +302,15 @@ app.MapGet("/gift/{id}", (CheckingItTwiceDbContext db, int id) =>
                      .FirstOrDefault();
 });
 
+// Get user Gifts:
+app.MapGet("/gifts/{id}", (CheckingItTwiceDbContext db, int id) =>
+{
+    return db.Gifts.Where(g => g.UserId == id)
+                     .Include(g => g.ChristmasLists)
+                     .Include(g => g.User)
+                     .ToList();
+});
+
 //Delete Gift:
 app.MapDelete("/gift/{id}", (CheckingItTwiceDbContext db, int id) =>
 {
