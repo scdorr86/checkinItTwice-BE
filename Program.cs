@@ -54,7 +54,8 @@ app.MapGet("/checkuser/{uid}", (CheckingItTwiceDbContext db, string uid) =>
     var userExist = db.Users.Where(user => user.Uid == uid).FirstOrDefault();
     if (userExist == null)
     {
-        return Results.BadRequest("User is not registered");
+        // return Results.BadRequest("User is not registered");
+        return Results.StatusCode(204);
     }
     return Results.Ok(userExist);
 });
@@ -100,6 +101,15 @@ app.MapGet("/users", (CheckingItTwiceDbContext db) =>
 app.MapGet("/user/{id}", (CheckingItTwiceDbContext db, int id) =>
 {
     return db.Users.Where(u => u.Id == id)
+                   .Include(u => u.ChristmasYear)
+                   .Include(u => u.ChristmasList)
+                   .FirstOrDefault();
+});
+
+// Get User by uid:
+app.MapGet("/userByUid/{uid}", (CheckingItTwiceDbContext db, string uid) =>
+{
+    return db.Users.Where(u => u.Uid == uid)
                    .Include(u => u.ChristmasYear)
                    .Include(u => u.ChristmasList)
                    .FirstOrDefault();
@@ -241,6 +251,25 @@ app.MapGet("/year/{id}", (CheckingItTwiceDbContext db, int id) =>
                      .Include(y => y.ChristmasLists)
                      .Include(y => y.User)
                      .FirstOrDefault();
+});
+
+//Years by user id
+app.MapGet("/years/{userid}", (CheckingItTwiceDbContext db, int userid) =>
+{
+    return db.ChristmasYears.Where(y => y.UserId == userid)
+                     .Include(y => y.ChristmasLists)
+                     .Include(y => y.User)
+                     .FirstOrDefault();
+});
+
+//Years by uid
+app.MapGet("/yearsByUid/{userid}", (CheckingItTwiceDbContext db, string userid) =>
+{
+    return db.ChristmasYears
+        .Where(y => y.User.Uid == userid)
+        .Include(y => y.ChristmasLists.Where(l => l.User.Uid == userid))
+        .Include(y => y.User)
+        .ToList();
 });
 
 //Delete Year:
