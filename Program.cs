@@ -256,8 +256,9 @@ app.MapGet("/year/{id}", (CheckingItTwiceDbContext db, int id) =>
 //Years by user id
 app.MapGet("/years/{userid}", (CheckingItTwiceDbContext db, int userid) =>
 {
-    return db.ChristmasYears.Where(y => y.UserId == userid)
+    return db.ChristmasYears.Where(y => y.UserId == userid)   
                      .Include(y => y.ChristmasLists)
+                     .ThenInclude(l => l.Gifts)
                      .Include(y => y.User)
                      .FirstOrDefault();
 });
@@ -267,7 +268,7 @@ app.MapGet("/yearsByUid/{userid}", (CheckingItTwiceDbContext db, string userid) 
 {
     return db.ChristmasYears
         .Where(y => y.User.Uid == userid)
-        .Include(y => y.ChristmasLists.Where(l => l.User.Uid == userid))
+        .Include(y => y.ChristmasLists.Where(l => l.User.Uid == userid)).ThenInclude(l => l.Gifts)
         .Include(y => y.User)
         .ToList();
 });
