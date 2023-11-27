@@ -9,5 +9,6 @@
         public User User { get; set; }
         public List <ChristmasList> ChristmasLists { get; set; }
         public decimal ListsTotal => ChristmasLists?.Sum(l => l.ListTotal) ?? 0;
+        public decimal BudgetVar => YearBudget - ListsTotal;
     }
 }
