@@ -491,4 +491,38 @@ app.MapDelete("/lists/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, in
     return Results.Ok(list);
 });
 
+// SEARCH TEST ENDPOINTS
+app.MapGet("/search", (CheckingItTwiceDbContext db, string query) =>
+{
+     var giftSearchResults = db.Gifts
+        .Where(gift => gift.GiftName.Contains(query) || gift.OrderedFrom.Contains(query))
+        .ToList();
+
+    var gifteeSearchResults = db.Giftees
+        .Where(giftee => giftee.FirstName.Contains(query) || giftee.LastName.Contains(query))
+        .ToList();
+
+    var yearSearchResults = db.ChristmasYears
+        .Where(year => year.ListYear.Contains(query))
+        .ToList();
+
+    var listSearchResults = db.ChristmasLists
+    .Where(list => list.ChristmasYear.ListYear.Contains(query) ||
+                   list.ListName.Contains(query) || 
+                   list.Giftee.FirstName.Contains(query) ||
+                   list.Giftee.LastName.Contains(query))
+    .ToList();
+
+    var searchResults = new
+    {
+        Gifts = giftSearchResults,
+        Giftees = gifteeSearchResults,
+        Years = yearSearchResults,
+        Lists = listSearchResults
+    };
+
+    return Results.Ok(searchResults);
+});
+
+
 app.Run();
