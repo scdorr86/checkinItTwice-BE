@@ -467,7 +467,7 @@ app.MapPost("/list/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, int l
     return Results.Ok(list);
 });
 
-// remove item from order
+// remove gift from list
 app.MapDelete("/lists/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, int listId, int giftId) =>
 {
     var list = db.ChristmasLists
@@ -492,26 +492,30 @@ app.MapDelete("/lists/{listId}/gifts/{giftId}", (CheckingItTwiceDbContext db, in
 });
 
 // SEARCH TEST ENDPOINTS
-app.MapGet("/search", (CheckingItTwiceDbContext db, string query) =>
+app.MapGet("/search", (CheckingItTwiceDbContext db, string query, int userId) =>
 {
-     var giftSearchResults = db.Gifts
-        .Where(gift => gift.GiftName.Contains(query) || gift.OrderedFrom.Contains(query))
+    var giftSearchResults = db.Gifts
+        .Where(gift => gift.UserId == userId &&
+                  (gift.GiftName.Contains(query) || gift.OrderedFrom.Contains(query)))
         .ToList();
 
     var gifteeSearchResults = db.Giftees
-        .Where(giftee => giftee.FirstName.Contains(query) || giftee.LastName.Contains(query))
+        .Where(giftee => giftee.UserId == userId &&
+                         (giftee.FirstName.Contains(query) || giftee.LastName.Contains(query)))
         .ToList();
 
     var yearSearchResults = db.ChristmasYears
-        .Where(year => year.ListYear.Contains(query))
+        .Where(year => year.UserId == userId && year.ListYear.Contains(query))
         .ToList();
 
     var listSearchResults = db.ChristmasLists
-    .Where(list => list.ChristmasYear.ListYear.Contains(query) ||
-                   list.ListName.Contains(query) || 
-                   list.Giftee.FirstName.Contains(query) ||
-                   list.Giftee.LastName.Contains(query))
-    .ToList();
+        .Where(list => list.UserId == userId &&
+                       (list.ChristmasYear.ListYear.Contains(query) ||
+                        list.ListName.Contains(query) ||
+                        list.Giftee.FirstName.Contains(query) ||
+                        list.Giftee.LastName.Contains(query)))
+        .Include(list => list.Giftee)
+        .ToList();
 
     var searchResults = new
     {
