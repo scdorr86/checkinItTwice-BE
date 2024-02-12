@@ -24,7 +24,7 @@ To learn more about Next.js, take a look at the following resources:
 ## Features <!-- List your app features using bullets! Do NOT use a paragraph. No one will read that! -->
 
 
-## Video Walkthrough of APP NAME <!-- A loom link is sufficient -->
+## Video Walkthrough of Checkin it Twice <!-- A loom link is sufficient -->
 
 
 ## Relevant Links <!-- Link to all the things that are required outside of the ones that have their own section -->
