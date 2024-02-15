@@ -2,7 +2,6 @@
 
 ## Topics
 ___
-## Getting Started
 
 
 
