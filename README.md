@@ -13,7 +13,7 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial. -->
 
 
-# NSS Back-end Capstone - Cameron Dorris  [![Netlify Status](https://api.netlify.com/api/v1/badges/f3a1b9d7-f222-4e90-9e80-be524c560fcd/deploy-status)](https://app.netlify.com/sites/fabulous-clafoutis-c889b5/deploys)
+# NSS Server-side Capstone - Cameron Dorris  [![Netlify Status](https://api.netlify.com/api/v1/badges/f3a1b9d7-f222-4e90-9e80-be524c560fcd/deploy-status)](https://app.netlify.com/sites/fabulous-clafoutis-c889b5/deploys)
 
 
 
